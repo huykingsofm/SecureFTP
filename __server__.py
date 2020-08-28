@@ -1,6 +1,7 @@
-from SecureFTP import SFTPServer, key
-from LocalVNetwork import AES_CTR
+from SecureFTP import SFTPServer
+from SecureFTP import AES_CTR
 
+key = b"0123456789abcdef"
 if __name__ == "__main__":
     cipher = AES_CTR(key)
     server = SFTPServer(

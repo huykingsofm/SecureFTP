@@ -24,7 +24,7 @@ class SFTPServer(object):
         self.__print__ = StandardPrint(f"From SFTP {address}", verbosities)
 
     def _wait(self):
-        self.socket = STCPSocket(cipher= self.cipher, buffer_size= self.buffer_size, verbosities= ())
+        self.socket = STCPSocket(cipher= self.cipher, buffer_size= self.buffer_size, verbosities= ("error", "warning"))
         self.socket.bind(self.address)
         self.socket.listen()
         return self.socket.accept()
@@ -98,7 +98,7 @@ class SFTPClient(object):
         self.__print__ = StandardPrint("From SFTP Client", verbosities)
 
     def _connect(self):
-        self.socket = STCPSocket(cipher= self.cipher)
+        self.socket = STCPSocket(cipher= self.cipher, verbosities = ("error", "warning"))
         self.socket.connect(self.server_address)
     
     def start(self):
@@ -110,24 +110,35 @@ class SFTPClient(object):
         data = self.socket.recv()
         if data == b"$request file_size":
             self.socket.send(file_size)
+        else:
+            return False
 
         sha1 = __hash_a_file__(self.filename)
         data = self.socket.recv()
         if data == b"$request file_hash":
             self.socket.send(sha1)
+        else:
+            return False
 
+        flag = False
         while True:
-            data = fstream.read(self.buffer_size)
-            if not data:
+            try:
+                data = fstream.read(self.buffer_size)
+                if not data:
+                    flag = True
+                    break
+                self.socket.send(data)
+                total_size += len(data)
+                self.__print__(f"sent total {total_size} bytes", "notification")
+                self.socket.recv()
+            except Exception as e:
+                self.__print__(repr(e), "error")
                 break
-            self.socket.send(data)
-            total_size += len(data)
-            self.__print__(f"sent total {total_size} bytes", "notification")
-            self.socket.recv()
+            
         self.socket.close()
         fstream.close()
         
-        return True
+        return flag
 
 if __name__ == "__main__":
     print(__hash_a_file__("a"))
