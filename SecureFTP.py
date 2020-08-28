@@ -1,11 +1,11 @@
 import os
 import socket
 import hashlib
-from DefinedError import InvalidArgument
-from SecureTCP import STCPSocket, STCPSocketClosed
-from CustomPrint import StandardPrint
+from .LocalVNetwork import STCPSocket
+from .LocalVNetwork import StandardPrint
+from .LocalVNetwork.DefinedError import InvalidArgument
+from .LocalVNetwork.SecureTCP import STCPSocketClosed
 
-key = b"0123456789abcdef"
 
 def __hash_a_file__(filename, buffer_size = 10 ** 6):
     sha1 = hashlib.sha1(b"")
@@ -122,7 +122,7 @@ class SFTPClient(object):
                 break
             self.socket.send(data)
             total_size += len(data)
-            self.__print__(f"sended total {total_size} bytes", "notification")
+            self.__print__(f"sent total {total_size} bytes", "notification")
             self.socket.recv()
         self.socket.close()
         fstream.close()

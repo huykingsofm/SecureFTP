@@ -1,6 +1,36 @@
 # SecureFTP
 A custom File Transport Protocol for security purpose
 
+# TESTING
+```
+# Step 1
+$ git clone https://github.com/huykingsofm/SecureFTP
+$ git submodule update --recursive
+
+# Step 2
+# Let's move or copy __server__.py and __client__.py from SecureFTP to current directory
+# Example:
+# Before moving
+#    -- CurrentDir/
+#    ------ SecureFTP/
+#    ---------- __server__.py
+#    ---------- __client__.py
+#    ---------- otherfiles...
+# After moving
+#    -- CurrentDir/
+#    ------ __server__.py
+#    ------ __client__.py
+#    ------ SecureFTP/
+#    ---------- otherfiles...
+
+# Step 3
+$ python __server__.py
+
+# Step 4
+# Adjust parameter `filename` in __client__.py to your file which you want to tranfer 
+$ python __client__.py
+```
+
 # USAGE
 ## SFTPServer
 ### @Constructor

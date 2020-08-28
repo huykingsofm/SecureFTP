@@ -1,5 +1,5 @@
 from SecureFTP import SFTPServer, key
-from Cipher import AES_CTR
+from LocalVNetwork import AES_CTR
 
 if __name__ == "__main__":
     cipher = AES_CTR(key)
