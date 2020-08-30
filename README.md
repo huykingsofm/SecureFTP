@@ -5,7 +5,7 @@ A custom File Transport Protocol for security purpose
 ```
 # Step 1
 $ git clone https://github.com/huykingsofm/SecureFTP
-$ git submodule update --recursive --remote
+$ git submodule update --init --recursive --remote
 
 # Step 2
 # Let's move or copy __server__.py and __client__.py from SecureFTP to current directory
