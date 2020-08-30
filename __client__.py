@@ -8,7 +8,7 @@ if __name__ == "__main__":
         server_address= ("127.0.0.1", 9999), 
         filename= "a", 
         cipher = cipher, 
-        buffer_size= int(20 * 10**6), 
+        buffer_size= int(2.9 * 10**6), 
         verbosities= ("error", "warning", "notification"))
     client.start()
     pass

@@ -9,7 +9,7 @@ if __name__ == "__main__":
         newfilename= "new.new", 
         cipher = cipher,
         save_file_after= 10**6, 
-        buffer_size= 21 * 10**6,
+        buffer_size= 3 * 10**6,
         verbosities= ("error", "warning", "notification")
         )
     server.start()
