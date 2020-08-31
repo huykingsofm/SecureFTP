@@ -33,12 +33,25 @@ class SFTPServer(object):
         client, address = self._wait()
         self.__print__(f"Connected to {address}", "notification")
 
-        client.send(b"$request file_size")
-        data = client.recv()
+        try:
+            client.send(b"$request file_size")
+            data = client.recv()
+        except STCPSocketClosed:
+            return False
+        except Exception as e:
+            self.__print__(repr(e), "error")
+            return False
+
         expected_file_size = int.from_bytes(data, "big")
 
-        client.send(b"$request file_hash")
-        expected_sha1 = client.recv()
+        try:
+            client.send(b"$request file_hash")
+            expected_sha1 = client.recv()
+        except STCPSocketClosed:
+            return False
+        except Exception as e:
+            self.__print__(repr(e), "error")
+            return False
 
         current_size = 0
         total_size = 0
@@ -47,7 +60,10 @@ class SFTPServer(object):
         while True:
             try:
                 data = client.recv()
-            except STCPSocketClosed as e:
+            except STCPSocketClosed:
+                break
+            except Exception as e:
+                self.__print__(repr(e), "error")
                 break
     
             if not data:
@@ -65,9 +81,10 @@ class SFTPServer(object):
             try:
                 client.send(f"$done {total_size}".encode())
             except STCPSocketClosed:
-                pass
+                break
             except Exception as e:
                 self.__print__(repr(e), "error")
+                break
 
         fstream.close()
         client.close()
