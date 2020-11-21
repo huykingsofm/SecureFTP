@@ -21,19 +21,19 @@ def __hash_a_file__(filename, buffer_size = 10 ** 6):
     return sha1.digest()
 
 class SFTP(object):
-    def __init__(self, address, address_onwer, verbosities = ("error", "warning")):
+    def __init__(self, address, address_owner, verbosities = ("error", "warning")):
         """
         address ~ (ip, port)
-        address_onwer ~ "self" or "partner"
+        address_owner ~ "self" or "partner"
         """
         assert isinstance(address, tuple), "Address must be a tuple"
         assert len(address) == 2, "Address must be (ip, port) format"
         assert __check_ip__(address[0]), "Invalid IP ({})".format(address[0])
         assert isinstance(address[1], int) and address[1] >= 0 and address[1] <= 65535, "Invalid port ({})".format(address[1])
-        assert address_onwer in ["self", "partner"], "Address owner must be only \"self\" or \"owner\""
+        assert address_owner in ["self", "partner"], "Address owner must be only \"self\" or \"owner\""
 
         self.__address__ = address
-        self.__address_owner__ = address_onwer
+        self.__address_owner__ = address_owner
         self.__print__ = StandardPrint("From SFTP", verbosities = verbosities)
     
     def __connect__(self):
