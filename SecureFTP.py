@@ -16,8 +16,11 @@ def __check_ip__(ip):
 def __hash_a_file__(filename, buffer_size = 10 ** 6):
     sha1 = hashlib.sha1(b"")
     with open(filename, "rb") as stream:
-        data = stream.read(buffer_size)
-        sha1.update(data)
+        while True:
+            data = stream.read(buffer_size)
+            if not data:
+                break
+            sha1.update(data)
     return sha1.digest()
 
 class SFTP(object):
