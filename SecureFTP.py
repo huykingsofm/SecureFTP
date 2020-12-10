@@ -38,12 +38,13 @@ class SFTP(object):
         self.__address__ = address
         self.__address_owner__ = address_owner
         self.__print__ = StandardPrint("From SFTP", verbosities = verbosities)
+        self.__verbosities__ = verbosities
     
     def __connect__(self):
         s = STCPSocket(
             cipher= self.__cipher__, 
             buffer_size= self.__buffer_size__, 
-            verbosities= ("error", "warning")
+            verbosities= self.__verbosities__
         )
         if self.__address_owner__ == "self":
             s.bind(self.__address__)
@@ -81,7 +82,7 @@ class SFTP(object):
                 if not data:
                     complete = True
                     break
-                self.__socket__.send(data)
+                self.__socket__.sendall(data)
                 total_size += len(data)
                 self.__print__(f"sent total {total_size} bytes", "notification")
                 self.__socket__.recv()
