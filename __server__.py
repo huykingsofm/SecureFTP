@@ -8,7 +8,7 @@ if __name__ == "__main__":
     ftp_receiver = SFTP(
         ("127.0.0.1", 9999),
         address_owner= "self",
-        verbosities= ("error", "warning", "notification")
+        verbosities= {"dev": {"error", "warning", "notification"}, "user": {"notification"}}
     )
     ftp_receiver.as_receiver(
         storage_path= "new.new",

@@ -7,10 +7,10 @@ if __name__ == "__main__":
     ftp_sender = SFTP(
         ("127.0.0.1", 9999),
         address_owner= "partner",
-        verbosities= ("error", "warning", "notification")
+        verbosities= {"dev": {"error", "warning", "notification"}, "user": {"notification"}}
     )
     ftp_sender.as_sender(
-        file_name= "a",
+        file_name= "__file.10MB",
         cipher= cipher,
         buffer_size= int(2.9 * 10 ** 6),
     )

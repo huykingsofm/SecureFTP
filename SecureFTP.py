@@ -23,7 +23,7 @@ def __hash_a_file__(filename, buffer_size = 10 ** 6):
     return sha1.digest()
 
 class SFTP(object):
-    def __init__(self, address, address_owner, verbosities = ("error", "warning")):
+    def __init__(self, address, address_owner, verbosities = {"dev": {"error", "warning"}, "user": {"notification"}}):
         """
         address ~ (ip, port)
         address_owner ~ "self" or "partner"
@@ -43,18 +43,18 @@ class SFTP(object):
         s = STCPSocket(
             cipher= self.__cipher__, 
             buffer_size= self.__buffer_size__, 
-            verbosities= ("error", "warning")
+            verbosities= {"dev": {"error", "warning"}}
         )
         if self.__address_owner__ == "self":
             s.bind(self.__address__)
             s.listen()
             self.__socket__, partner_address = s.accept()
-            self.__print__("notification", "{} connected".format(partner_address))
+            self.__print__("user", "notification", "{} connected".format(partner_address))
             s.close()
         else:
             s.connect(self.__address__)
             self.__socket__ = s
-            self.__print__("notification", "Connect to {} successfully".format(self.__address__))
+            self.__print__("user", "notification", "Connect to {} successfully".format(self.__address__))
 
     def __send__(self):
         fstream = open(self.__file_name__, "rb")
@@ -83,10 +83,11 @@ class SFTP(object):
                     break
                 self.__socket__.sendall(data)
                 total_size += len(data)
-                self.__print__("notification", f"sent total {total_size} bytes")
+                self.__print__("user", "notification", f"sent total {total_size} bytes")
                 self.__socket__.recv()
             except Exception as e:
-                self.__print__("error", repr(e))
+                self.__print__("user", "error", "Unknown error")
+                self.__print__("dev", "error", repr(e))
                 break
         
         self.__socket__.send(b"$sending_complete")
@@ -110,7 +111,8 @@ class SFTP(object):
         except STCPSocketClosed:
             return False
         except Exception as e:
-            self.__print__("error", repr(e))
+            self.__print__("user", "error", "Unknown error")
+            self.__print__("dev", "error", repr(e))
             return False
 
         expected_file_size = int.from_bytes(data, "big")
@@ -121,7 +123,8 @@ class SFTP(object):
         except STCPSocketClosed:
             return False
         except Exception as e:
-            self.__print__("error", repr(e))
+            self.__print__("user", "error", "Unknown error")
+            self.__print__("dev", "error", repr(e))
             return False
 
         current_size = 0
@@ -134,7 +137,8 @@ class SFTP(object):
             except STCPSocketClosed:
                 break
             except Exception as e:
-                self.__print__("error", repr(e))
+                self.__print__("user", "error", "Unknown error")
+                self.__print__("dev", "error", repr(e))
                 break
     
             if not data:
@@ -150,14 +154,15 @@ class SFTP(object):
                 fstream.close()
                 fstream = open(self.__storage_path__, "ab")
                 current_size = 0
-            self.__print__("notification", f"received total {total_size} bytes")
+            self.__print__("user", "notification", f"received total {total_size} bytes")
 
             try:
                 self.__socket__.send(f"$done {total_size}".encode())
             except STCPSocketClosed:
                 break
             except Exception as e:
-                self.__print__("error", repr(e))
+                self.__print__("user", "error", "Unknown error")
+                self.__print__("dev", "error", repr(e))
                 break
 
         fstream.close()
@@ -165,22 +170,25 @@ class SFTP(object):
         result = True
         message = ""
         if total_size < expected_file_size:
-            self.__print__("notification", "File size is smaller than expected")
+            self.__print__("user", "warning", "Downloading file fails")
+            self.__print__("dev", "warning", "File size is smaller than expected")
             message = "File size is smaller than expected"
             result = False
 
         if total_size > expected_file_size:
-            self.__print__("notification", "File size is larger than expected")
+            self.__print__("user", "warning", "Downloading file fails")
+            self.__print__("dev", "warning", "File size is larger than expected")
             message = "File size is larger than expected"
             result = False
 
         sha1 = __hash_a_file__(self.__storage_path__)
         if sha1 != expected_sha1:
-            self.__print__("notification", "Non-integrity file")
+            self.__print__("user", "warning", "Downloading file fails")
+            self.__print__("dev", "warning", "File integrity is compromised")
             message = "File integrity is compromised"
             result = False
 
-        self.__print__("notification", f"Received file successfully, save at {self.__storage_path__}")
+        self.__print__("user", "notification", f"Received file successfully, save at {self.__storage_path__}")
 
         if result == True:
             self.__socket__.send(b"$result success")
