@@ -136,4 +136,4 @@ dmypy.json
 .vscode/
 
 # temporacy test file
-file.*
+file.*MB*

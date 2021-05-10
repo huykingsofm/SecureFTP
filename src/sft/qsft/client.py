@@ -11,40 +11,47 @@ from sft.qsft.definition import DEFAULT_ADDRESS
 from sft.protocol.definition import SFTProtocols, SFTRoles
 
 
-class QSFTClient(SFTClientResponser):
+class QSFTClient(object):
     def __init__(self,
-                role: SFTRoles,
                 cipher: HKSCipher = NoCipher(),
                 address: tuple = DEFAULT_ADDRESS,
                 logger_generator: LoggerGenerator = InvisibleLoggerGenerator(),
                 display: dict = {StdUsers.DEV: Display.ALL}
             ):
-        super().__init__(
-                role=role,
+        self._client = SFTClientResponser(
                 cipher=cipher,
                 address=address,
                 logger_generator=logger_generator,
                 display=display
             )
-        
-        self._role = role
 
-        self.connect()
+        self._client.connect()
 
-    def transfer(self, filename: str = None):
-        if self._role == SFTRoles.RECEIVER and filename is not None:
-            raise Exception("Receiver doesn't need parameter filename")
+        self._client.start(True)
 
-        if filename is not None and not os.path.isfile(filename):
+    def config(self, role: SFTRoles, **kwargs):
+        self._client.session_manager().get_scheme(
+                SFTProtocols.SFT,
+                role
+            ).config(**kwargs)
+
+    def send(self, path: str):
+        if not os.path.isfile(path):
             raise Exception("File not found.")
-        
-        self.start(True)
 
-        if self._role == SFTRoles.SENDER:
-            self.activate(SFTProtocols.SFT, filename=filename)
+        self._client.activate(SFTProtocols.SFT, SFTRoles.SENDER, path=path)
 
-        result = self.wait_result(SFTProtocols.SFT)
+        result = self._client.wait_result(SFTProtocols.SFT, SFTRoles.SENDER, timeout=60)
 
-        self.close()
+        self._client.close()
+
+        return result
+
+    def receive(self, filename):
+        self._client.activate(SFTProtocols.SFT, SFTRoles.RECEIVER, token=filename)
+
+        result = self._client.wait_result(SFTProtocols.SFT, SFTRoles.RECEIVER, timeout=60)
+
+        self._client.close()
 
         return result

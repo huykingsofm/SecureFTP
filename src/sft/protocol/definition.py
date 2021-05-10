@@ -1,16 +1,16 @@
 import csbuilder
-from csbuilder.standard import Protocols, StandardRole, Roles, States
+from csbuilder.standard import Protocols, Roles, States
 
 
 @csbuilder.protocols
 class SFTProtocols(Protocols):
-    SFT = 1
+    SFT = 8888
 
 
 @csbuilder.roles(protocol=SFTProtocols.SFT)
 class SFTRoles(Roles):
-    SENDER = StandardRole.ACTIVE
-    RECEIVER = StandardRole.PASSIVE
+    SENDER = 0
+    RECEIVER = 1
 
 
 @csbuilder.states(SFTProtocols.SFT,SFTRoles.SENDER)
@@ -19,6 +19,7 @@ class SFTSenderStates(States):
     REQUEST = 1
     INFO = 2
     SEND = 3
+    DENY = 4
 
 
 @csbuilder.states(SFTProtocols.SFT, SFTRoles.RECEIVER)
@@ -29,3 +30,4 @@ class SFTReceiverStates(States):
     REQUIRE = 3
     SUCCESS = 4
     FAILURE = 5
+    REQUEST = 6
